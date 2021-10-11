@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>跳转</title>
+</head>
+<script type="text/javascript">
+    window.onload = function () {
+        var url = document.getElementById("url").value.trim();
+        window.open(url);
+        window.history.back();
+    };
+</script>
+<body>
+<input th:value="${url}" id="url">
+</body>
+</html>

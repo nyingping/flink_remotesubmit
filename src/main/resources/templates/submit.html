@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>提交</title>
+</head>
+<body>
+<!--<div th:replace="fragments/header :: header">...</div>-->
+<h3 th:text="提交任务">Welcome to springboot</h3>
+<form action="/submit"  method="post">
+    <!--<input type="hidden" name="id" >-->
+    Source Sql：<br>
+    <textarea name="source" cols="100" rows="20">
+    </textarea>
+    <br>
+    Sink Sql：<br>
+    <textarea name="sink" cols="100" rows="20"></textarea><br>
+    Transformation Sql：<br>
+    <textarea name="transformation" cols="100" rows="20"></textarea>
+    <br>
+    主方法：
+    <input type="text" name="mainClass"><br>
+    <br>
+    parallelism：
+    <input type="text" name="parallelism"><br>
+    <input type="submit" value="提交">
+</form>
+<!--<div th:replace="~{fragments/footer :: footer}">...</div>-->
+</body>
+</html>

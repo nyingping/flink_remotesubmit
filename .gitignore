@@ -1,0 +1,12 @@
+##----------idea----------
+*.iml
+.idea/
+*.ipr
+*.iws
+target/
+META-INF/
+lib/
+source/
+.mvn/
+class/
+*jar
