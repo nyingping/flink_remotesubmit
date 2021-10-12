@@ -109,16 +109,15 @@
             <version>${flink.version}</version>
         </dependency>
 
-
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.6</version>
+            <version>4.4</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
-            <version>4.4.5</version>
+            <artifactId>httpmime</artifactId>
+            <version>4.4</version>
         </dependency>
 
         <dependency>
@@ -134,6 +133,12 @@
             <artifactId>log4j-over-slf4j</artifactId>
             <version>${log4j-over-slf4j.version}</version>
         </dependency>-->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-json</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+
 
     </dependencies>
 

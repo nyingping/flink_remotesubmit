@@ -5,17 +5,19 @@ import org.apache.flink.table.api.TableEnvironment;
 
 public class TableApiModel {
 
-    public static void service(String sourceSql,String transformationSql,String sinkSql) {
+    public static void main(String[] args) throws Exception {
+        service();
+    }
+
+    public static void service() {
         EnvironmentSettings fsSettings = EnvironmentSettings.newInstance()
                 .inStreamingMode()
                 .useBlinkPlanner()
                 .build();
         TableEnvironment te = TableEnvironment.create(fsSettings);
-        te.executeSql(sourceSql);
-//        Table table = te.sqlQuery(transformationSql);
-//        te.createTemporaryView("t", table);
-        te.executeSql(sinkSql);
-        te.executeSql(transformationSql);
+        te.executeSql("${sourceSql}");
+        te.executeSql("${sinkSql}");
+        te.executeSql("${transformationSql}");
     }
 
 }

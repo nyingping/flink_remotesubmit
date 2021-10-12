@@ -2,8 +2,9 @@ package com.yp.service;
 
 import cn.hutool.http.HttpUtil;
 import com.google.gson.Gson;
-import com.yp.com.yp.model.SubmitModel;
+import com.yp.model.SubmitModel;
 import com.yp.service.CreateJar.CreateJarService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -12,9 +13,11 @@ import javax.activation.MimetypesFileTypeMap;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class SubmitService {
@@ -45,22 +48,82 @@ public class SubmitService {
     private String submitMissionUrl;
 
 
-    public String service(SubmitModel model) throws Exception{
+    public String service(SubmitModel model) throws Exception {
+//        replace(model);
         //1.生成jar包
         String jarPath = createJarService.execute();
-        return "";
-//        //2.上传jar包
-//        String flinkJarName = UploadJar(jarPath);
-//        System.out.println(flinkJarName);
-//        //3.提交任务
-////        String url = "http://172.22.1.125:8081/jars/" + flinkJarName + "/run?entry-class=" + mainClass + "&parallelism=" + parallelism;
-//        String param = "?entry-class=" + model.getMainClass() + "&parallelism=" + model.getParallelism();
-//        String url = submitMissionUrl.replace("{flinkJarName}", flinkJarName) + param;
-//        String jobId = HttpUtil.post(url, "");
-//        if (jobId.contains("error")) {
-//            throw new Exception(jobId);
-//        }
-//        return flinkMissionUiUrl.replace("{jobId}", jobId);
+        //2.上传jar包
+        String flinkJarName = UploadJar(jarPath);
+        System.out.println(flinkJarName);
+        //3.提交任务
+        String param = "?paramentry-class=" + model.getMainClass() + "&parallelism=" + model.getParallelism();
+        param += "&program-args=--- " + model.getSource()
+                + " --- " + model.getTransformation()
+                + " --- " + model.getSink();
+//        param += "&program-args=--- 1"
+//                + " --- 2"
+//                + " --- 3";
+        String url = submitMissionUrl.replace("{flinkJarName}", flinkJarName)
+                + param.replaceAll("\r","").replaceAll("\n","");
+        System.out.println("url = " + url);
+        String jobId = HttpUtil.post(url, "");
+        if (jobId.contains("error")) {
+            throw new Exception(jobId);
+        }
+        return flinkMissionUiUrl.replace("{jobId}", jobId);
+    }
+
+    public void replace (SubmitModel model) {
+        List<String> list = readJavaFile("D:\\ideaproject\\test\\flink_remotesubmit\\src\\main\\java\\com\\yp\\flink\\model\\TableApiModel.java");
+
+        for (int i = 0; i < list.size(); i++) {
+            String line = list.get(i);
+            if (StringUtils.isNoneBlank()) {
+                line = line.replace("${sourceSql}", model.getSource().replaceAll("\r","").replaceAll("\n",""));
+                line = line.replace("${transformationSql}", model.getTransformation().replaceAll("\r","").replaceAll("\n",""));
+                line = line.replace("${sinkSql}", model.getSink().replaceAll("\r","").replaceAll("\n",""));
+                line = line.replace("public class TableApiModel","public class TableApiModelTemp");
+            }
+            list.remove(i);
+            list.add(i, line);
+        }
+        File file = new File("D:\\ideaproject\\test\\flink_remotesubmit\\src\\main\\java\\com\\yp\\flink\\model\\TableApiModelTemp.java");
+        if (new File("D:\\ideaproject\\test\\flink_remotesubmit\\src\\main\\java\\com\\yp\\flink\\model\\TableApiModelTemp.java").exists()) {
+            file.delete();
+        }
+        contentToJava("D:\\ideaproject\\test\\flink_remotesubmit\\src\\main\\java\\com\\yp\\flink\\model\\TableApiModelTemp.java", list);
+    }
+
+    public static void contentToJava(String filePath, List<String> listStr) {
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath), true));
+            listStr.forEach(str -> {
+                try {
+                    writer.newLine();
+                    writer.write(str);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            writer.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("文件写入完毕,文件路径:" + filePath);
+    }
+
+
+    public static List<String> readJavaFile(String file) {
+        //读取文件
+        List<String> lineLists = null;
+        try {
+            lineLists = Files.lines(Paths.get(file), Charset.defaultCharset())
+                    .flatMap(line -> Arrays.stream(line.split("\n")))
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            //Your exception handling here
+        }
+        return lineLists;
     }
 
     public String UploadJar(String fileName) {
@@ -76,6 +139,22 @@ public class SubmitService {
         }
         return null;
     }
+
+//    public void  s (){
+//        HttpPost uploadFile = new HttpPost("/jars/upload");
+//        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+//        builder.addBinaryBody(
+//                "jarfile",
+//                new FileInputStream(f),
+//                ContentType.create("application/x-java-archive"),
+//                f.getName()
+//        );
+//
+//        HttpEntity multipart = builder.build();
+//        uploadFile.setEntity(multipart);
+//        CloseableHttpResponse response = restClient.execute(uploadFile);
+//        rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+//    }
 
     public String formUpload(String urlStr,
                              Map<String, String> fileMap, String contentType) {

@@ -1,4 +1,4 @@
-package com.yp.com.yp.model;
+package com.yp.model;
 
 import java.io.Serializable;
 

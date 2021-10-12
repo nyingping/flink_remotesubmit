@@ -1,6 +1,7 @@
 package com.yp.controller;
 
-import com.yp.com.yp.model.SubmitModel;
+import com.google.gson.Gson;
+import com.yp.model.SubmitModel;
 import com.yp.service.SubmitService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
@@ -23,6 +24,8 @@ public class SumbitController {
 
     @PostMapping("/submit")
     public ModelAndView submit(SubmitModel model) throws Exception{
+        Gson gson = new Gson();
+        System.out.println(gson.toJson(model));
         String url = submitService.service(model);
         return new ModelAndView("direct", "url", url);
     }
