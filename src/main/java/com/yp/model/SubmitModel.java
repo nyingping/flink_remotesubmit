@@ -8,6 +8,9 @@ public class SubmitModel {
     private String transformation;
     private String mainClass;
     private String parallelism;
+    private String missionName;
+    private Integer submitType;//1编译提交 2不编译提交
+    private String jarName;
 
     public String getSource() {
         return source;
@@ -47,5 +50,29 @@ public class SubmitModel {
 
     public void setParallelism(String parallelism) {
         this.parallelism = parallelism;
+    }
+
+    public String getMissionName() {
+        return missionName;
+    }
+
+    public void setMissionName(String missionName) {
+        this.missionName = missionName;
+    }
+
+    public Integer getSubmitType() {
+        return submitType;
+    }
+
+    public void setSubmitType(Integer submitType) {
+        this.submitType = submitType;
+    }
+
+    public String getJarName() {
+        return jarName;
+    }
+
+    public void setJarName(String jarName) {
+        this.jarName = jarName;
     }
 }

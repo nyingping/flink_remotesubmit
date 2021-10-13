@@ -19,7 +19,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <flink.version>1.13.2</flink.version>
-        <scala.version>2.12</scala.version>
+        <scala.version>2.11</scala.version>
         <logback.version>1.2.3</logback.version>
         <log4j-over-slf4j.version>1.7.30</log4j-over-slf4j.version>
     </properties>

@@ -1,74 +1,21 @@
 package com.yp.utils;
 
-import com.yp.service.CreateJar.CompilerService;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.tools.*;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 public class FileUtils {
-
-    public static void main(String[] args) {
-        service("sdf", "sfd", "3w2");
-    }
-
-    public static void service(String sourceSql, String transformationSql, String sinkSql) {
-        List<String> list = readJavaFile("D:\\ideaproject\\test\\flink_remotesubmit2\\src\\main\\java\\com\\yp\\flink\\model\\TableApiModel.java");
-
-        for (int i = 0; i < list.size(); i++) {
-            String line = list.get(i);
-            if (StringUtils.isNoneBlank()) {
-                line = line.replace("${sourceSql}", sourceSql);
-                line = line.replace("${transformationSql}", transformationSql);
-                line = line.replace("${sinkSql}", sinkSql);
-                line = line.replace("public class TableApiModel","public class TableApiModelTemp");
-            }
-            list.remove(i);
-            list.add(i, line);
-        }
-        File file = new File("D:\\ideaproject\\test\\flink_remotesubmit2\\src\\main\\java\\com\\yp\\flink\\model\\TableApiModelTemp.java");
-        if (new File("D:\\ideaproject\\test\\flink_remotesubmit2\\src\\main\\java\\com\\yp\\flink\\model\\TableApiModelTemp.java").exists()) {
-            file.delete();
-        }
-        contentToJava("D:\\ideaproject\\test\\flink_remotesubmit2\\src\\main\\java\\com\\yp\\flink\\model\\TableApiModelTemp.java", list);
-
-        String fullQuanlifiedFileName = "D:\\ideaproject\\test\\flink_remotesubmit2\\src\\main\\java\\com\\yp\\flink\\model\\TableApiModelTemp.java";
-        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        StandardJavaFileManager fileManager =
-                compiler.getStandardFileManager(null, null, null);
-
-
-        Iterable<? extends JavaFileObject> files =
-                fileManager.getJavaFileObjectsFromStrings(
-                        Arrays.asList(fullQuanlifiedFileName));
-        JavaCompiler.CompilationTask task = compiler.getTask(
-                null, fileManager, null, null, null, files);
-
-        Boolean result = task.call();
-        if (result == true) {
-            System.out.println("Succeeded");
-        }
-
-
-
-       /* try {
-            compiler();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
-    }
-
-    public static void contentToJava(String filePath, List<String> listStr) {
+    public void contentToJava(String filePath, List<String> listStr) {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath), true));
             listStr.forEach(str -> {
@@ -87,7 +34,7 @@ public class FileUtils {
     }
 
 
-    public static List<String> readJavaFile(String file) {
+    public List<String> readJavaFile(String file) {
         //读取文件
         List<String> lineLists = null;
         try {
@@ -100,87 +47,180 @@ public class FileUtils {
         return lineLists;
     }
 
-    public static void compiler() throws Exception {
-        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
-        //该文件管理器实例的作用就是将我们需要动态编译的java源文件转换为getTask需要的编译单元
-        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
-        // 获取要编译原文件列表
-        List<File> sourceFileList = new ArrayList<>();
-        sourceFileList.add(new File("D:\\ideaproject\\test\\flink_remotesubmit\\src\\main\\java\\com\\yp\\flink\\model\\TableApiModel.java"));
-        Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(sourceFileList);
-        /**
-         * 编译选项，在编译java文件时，编译程序会自动的去寻找java文件引用的其他的java源文件或者class。 -sourcepath选项就是定义java源文件的查找目录， -classpath选项就是定义class文件的查找目录，-d就是编译文件的输出目录。
-         */
-        //Iterable<String> options =Arrays.asList("-encoding",encoding,"-classpath",jars,"-d", targetDir, "-sourcepath", sourceDir);
-        //-classpath 依赖jar
-        //-d 编译后class存入目录
-        String dependmentJars = "";
-        dependmentJars = getJarFiles(new File("D:\\ideaproject\\test\\flink_remotesubmit\\lib"), dependmentJars);
-        String targetDir = "D:\\ideaproject\\test\\flink_remotesubmit";
-        String sourceDir = "D:\\ideaproject\\test\\flink_remotesubmit\\target";
-        Iterable<String> options = Arrays.asList("-encoding", "UTF-8", "-classpath", dependmentJars, "-d", targetDir, "-sourcepath", sourceDir);
-        /**
-         * 第一个参数为文件输出，这里我们可以不指定，我们采用javac命令的-d参数来指定class文件的生成目录
-         * 第二个参数为文件管理器实例  fileManager
-         * 第三个参数DiagnosticCollector<JavaFileObject> diagnostics是在编译出错时，存放编译错误信息
-         * 第四个参数为编译命令选项，就是javac命令的可选项，这里我们主要使用了-d和-sourcepath这两个选项
-         * 第五个参数为类名称
-         * 第六个参数为上面提到的编译单元，就是我们需要编译的java源文件
-         */
 
-        JavaCompiler.CompilationTask task = compiler.getTask(
-                null,
-                fileManager,
-                diagnostics,
-                options,
-                null,
-                compilationUnits);
-        // 运行编译任务
-        // 编译源程式
-        boolean success = task.call();
-        for (Diagnostic diagnostic : diagnostics.getDiagnostics())
-            System.out.printf(
-                    "Code: %s%n" +
-                            "Kind: %s%n" +
-                            "Position: %s%n" +
-                            "Start Position: %s%n" +
-                            "End Position: %s%n" +
-                            "Source: %s%n" +
-                            "Message: %s%n",
-                    diagnostic.getCode(), diagnostic.getKind(),
-                    diagnostic.getPosition(), diagnostic.getStartPosition(),
-                    diagnostic.getEndPosition(), diagnostic.getSource(),
-                    diagnostic.getMessage(null));
-        fileManager.close();
-        System.out.println((success) ? "编译成功" : "编译失败");
+    /**
+     * @param rootPath    class文件根目录
+     * @param targetPath  需要将jar存放的路径
+     * @param jarFileName jar文件的名称
+     * @Description: 根据class生成jar文件
+     */
+    public String createTempJar(String rootPath, String targetPath, String jarFileName) throws IOException {
+        if (!new File(rootPath).exists()) {
+            throw new IOException(String.format("%s路径不存在", rootPath));
+        }
+        if (StringUtils.isBlank(jarFileName)) {
+            throw new NullPointerException("jarFileName为空");
+        }
+        //生成META-INF文件
+        Manifest manifest = new Manifest();
+        manifest.getMainAttributes().putValue("Manifest-Version", "1.0");
+        //创建临时jar
+        File jarFile = File.createTempFile("edwin-", ".jar", new File(System.getProperty("java.io.tmpdir")));
+        JarOutputStream out = new JarOutputStream(new FileOutputStream(jarFile), manifest);
+        createTempJarInner(out, new File(rootPath), "");
+        out.flush();
+        out.close();
+        //生成目标路径
+        File targetFile = new File(targetPath);
+        if (!targetFile.exists()) targetFile.mkdirs();
+        File targetJarFile = new File(targetPath + File.separator + jarFileName + ".jar");
+        if (targetJarFile.exists() && targetJarFile.isFile()) targetJarFile.delete();
+        org.apache.commons.io.FileUtils.moveFile(jarFile, targetJarFile);
+        //jarFile.renameTo(new File(""));
+        return targetJarFile.getAbsolutePath();
     }
 
     /**
-     * 查找该目录下的所有的jar文件
+     * @param out  文件输出流
+     * @param f    文件临时File
+     * @param base 文件基础包名
+     * @return void
+     * @Description: 生成jar文件
      */
-    private static String getJarFiles(File sourceFile, String jars) throws Exception {
-        if (!sourceFile.exists()) {
-            // 文件或者目录必须存在
-            throw new IOException("jar目录不存在");
-        }
-        if (!sourceFile.isDirectory()) {
-            // 若file对象为目录
-            throw new IOException("jar路径不为目录");
-        }
-        if (sourceFile.isDirectory()) {
-            for (File file : sourceFile.listFiles()) {
-                if (file.isDirectory()) {
-                    getJarFiles(file, jars);
-                } else {
-                    jars = jars + file.getPath() + ";";
-                }
+    private void createTempJarInner(JarOutputStream out, File f,
+                                    String base) throws IOException {
+
+        if (f.isDirectory()) {
+            File[] fl = f.listFiles();
+            if (base.length() > 0) {
+                base = base + "/";
+            }
+            for (int i = 0; i < fl.length; i++) {
+                createTempJarInner(out, fl[i], base + fl[i].getName());
             }
         } else {
-            jars = jars + sourceFile.getPath() + ";";
+            out.putNextEntry(new JarEntry(base));
+            FileInputStream in = new FileInputStream(f);
+            byte[] buffer = new byte[1024];
+            int n = in.read(buffer);
+            while (n != -1) {
+                out.write(buffer, 0, n);
+                n = in.read(buffer);
+            }
+            in.close();
         }
-        return jars;
     }
 
+    /**
+     * 获取文件夹下所有文件，包括子目录下文件
+     *
+     * @return
+     * @author hsj
+     */
+    public List<File> getAllFile(File rootFile, String end) {
+        List<File> files = new ArrayList<>();
+        if (rootFile == null) {
+            return null;
+        }
+        if (rootFile.isDirectory()) {
+            File[] fileArr = rootFile.listFiles();
+            for (int i = 0; i < fileArr.length; i++) {
+                File file = fileArr[i];
+                if (fileArr[i].isDirectory()) {
+                    files.addAll(getAllFile(file, end));
+                } else {
+                    if (file.getPath().endsWith(end)) {
+                        files.add(file);
+                    }
+                }
+            }
+        }
+        return files;
+    }
 
+    /**
+     * 获取文件夹下所有文件，包括子目录下文件
+     *
+     * @return
+     * @author hsj
+     */
+    public String getAllFileName(File rootFile, String end) {
+        String files = "";
+        if (rootFile == null) {
+            return "";
+        }
+        if (rootFile.isDirectory()) {
+            File[] fileArr = rootFile.listFiles();
+            for (int i = 0; i < fileArr.length; i++) {
+                File file = fileArr[i];
+                if (fileArr[i].isDirectory()) {
+                    files += getAllFile(file, end);
+                } else {
+                    if (file.getPath().endsWith(end)) {
+                        files += file + ";";
+                    }
+                }
+            }
+        }
+        return files;
+    }
+
+    public boolean deleteDir(File dir) {
+        if (dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i = 0; i < children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+        return dir.delete();
+    }
+
+    public void copyFolder(String resource, String target) throws Exception {
+        File resourceFile = new File(resource);
+        if (!resourceFile.exists()) {
+            throw new Exception("源目标路径：[" + resource + "] 不存在...");
+        }
+        File targetFile = new File(target);
+        if (!targetFile.exists()) {
+            targetFile.mkdirs();
+        }
+        File[] resourceFiles = resourceFile.listFiles();
+        for (File file : resourceFiles) {
+            File file1 = new File(targetFile.getAbsolutePath() + File.separator + resourceFile.getName());
+            if (file.isFile()) {
+                if (!file1.exists()) {
+                    file1.mkdirs();
+                }
+                File targetFile1 = new File(file1.getAbsolutePath() + File.separator + file.getName());
+                copyFile(file, targetFile1);
+            }
+            if (file.isDirectory()) {// 复制源文件夹
+                String dir1 = file.getAbsolutePath();
+                String dir2 = file1.getAbsolutePath();
+                copyFolder(dir1, dir2);
+            }
+        }
+    }
+
+    public void copyFile(File resource, File target) throws Exception {
+        long start = System.currentTimeMillis();
+        FileInputStream inputStream = new FileInputStream(resource);
+        BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
+        FileOutputStream outputStream = new FileOutputStream(target);
+        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
+        byte[] bytes = new byte[1024 * 2];
+        int len = 0;
+        while ((len = inputStream.read(bytes)) != -1) {
+            bufferedOutputStream.write(bytes, 0, len);
+        }
+        bufferedOutputStream.flush();
+        bufferedInputStream.close();
+        bufferedOutputStream.close();
+        inputStream.close();
+        outputStream.close();
+        long end = System.currentTimeMillis();
+    }
 }

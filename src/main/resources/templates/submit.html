@@ -10,19 +10,28 @@
 <form action="/submit"  method="post">
     <!--<input type="hidden" name="id" >-->
     Source Sql：<br>
-    <textarea name="source" cols="100" rows="20">
+    <textarea name="source" cols="100" rows="20" th:text="${defaultSql.getSourceSql()}">
     </textarea>
     <br>
     Sink Sql：<br>
-    <textarea name="sink" cols="100" rows="20"></textarea><br>
+    <textarea name="sink" cols="100" rows="20" th:text="${defaultSql.getSinkSql()}"></textarea><br>
     Transformation Sql：<br>
-    <textarea name="transformation" cols="100" rows="20"></textarea>
+    <textarea name="transformation" cols="100" rows="20" th:text="${defaultSql.getTransformationSql()}"></textarea>
     <br>
     主方法：
     <input type="text" name="mainClass"><br>
     <br>
     parallelism：
     <input type="text" name="parallelism"><br>
+    任务名称：
+    <input type="text" name="missionName"><br>
+    <label >提交方式</label>
+    <div >
+        <input type="radio" th:name="submitType" th:value="1" th:title="重新编译" >重新编译
+        <input type="radio" th:name="submitType" th:value="2" th:title="不编译"  >不编译
+    </div>
+    flink jar包名称(选择不编译时必填)
+    <input type="text" name="jarName"><br>
     <input type="submit" value="提交">
 </form>
 <!--<div th:replace="~{fragments/footer :: footer}">...</div>-->
