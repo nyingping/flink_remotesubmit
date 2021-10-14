@@ -1,5 +1,6 @@
 package com.yp.controller;
 
+import com.yp.constants.SubmitConstant;
 import com.yp.model.DefaultSql;
 import com.yp.model.SubmitModel;
 import com.yp.service.SubmitService;
@@ -37,7 +38,7 @@ public class SumbitController {
 
     @PostMapping("/submit")
     public ModelAndView submit(SubmitModel model) throws Exception{
-        if (model.getSubmitType() == 2 && StringUtils.isBlank(model.getJarName())) {
+        if (model.getSubmitType() == SubmitConstant.SUBMIT_TYPE_NOCOMPILE && StringUtils.isBlank(model.getJarName())) {
             Assert.isNull(model.getJarName(),String.format("当选择flink现有jar包的提交方式时，必须输入jar包名称【{}】","jarName"));
         }
         String url = submitService.service(model);
