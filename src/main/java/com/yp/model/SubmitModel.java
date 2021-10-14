@@ -1,7 +1,11 @@
 package com.yp.model;
 
-import java.io.Serializable;
-
+/**
+ * @author nyp
+ * @version 1.0
+ * @description: 提交参数
+ * @date 2021/10/14 13:49
+ */
 public class SubmitModel {
     private String source;
     private String sink;
@@ -9,7 +13,7 @@ public class SubmitModel {
     private String mainClass;
     private String parallelism;
     private String missionName;
-    private Integer submitType;//1编译提交 2不编译提交
+    private Integer submitType;
     private String jarName;
 
     public String getSource() {

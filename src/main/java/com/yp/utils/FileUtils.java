@@ -1,6 +1,9 @@
 package com.yp.utils;
 
+import com.yp.controller.SumbitController;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -14,7 +17,15 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
+/**
+ * @author nyp
+ * @version 1.0
+ * @description
+ * @date 2021/10/14 13:49
+ */
 public class FileUtils {
+    Logger logger = LoggerFactory.getLogger(FileUtils.class);
+
     public void contentToJava(String filePath, List<String> listStr) {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath), true));
@@ -30,20 +41,16 @@ public class FileUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("文件写入完毕,文件路径:" + filePath);
+        if (logger.isInfoEnabled()) {
+            logger.info("文件写入完毕,文件路径:{}", filePath);
+        }
     }
 
 
-    public List<String> readJavaFile(String file) {
-        //读取文件
-        List<String> lineLists = null;
-        try {
-            lineLists = Files.lines(Paths.get(file), Charset.defaultCharset())
-                    .flatMap(line -> Arrays.stream(line.split("\n")))
-                    .collect(Collectors.toList());
-        } catch (IOException e) {
-            //Your exception handling here
-        }
+    public List<String> readJavaFile(String file) throws Exception {
+        List<String> lineLists = Files.lines(Paths.get(file), Charset.defaultCharset())
+                .flatMap(line -> Arrays.stream(line.split("\n")))
+                .collect(Collectors.toList());
         return lineLists;
     }
 
@@ -72,11 +79,14 @@ public class FileUtils {
         out.close();
         //生成目标路径
         File targetFile = new File(targetPath);
-        if (!targetFile.exists()) targetFile.mkdirs();
+        if (!targetFile.exists()) {
+            targetFile.mkdirs();
+        }
         File targetJarFile = new File(targetPath + File.separator + jarFileName + ".jar");
-        if (targetJarFile.exists() && targetJarFile.isFile()) targetJarFile.delete();
+        if (targetJarFile.exists() && targetJarFile.isFile()) {
+            targetJarFile.delete();
+        }
         org.apache.commons.io.FileUtils.moveFile(jarFile, targetJarFile);
-        //jarFile.renameTo(new File(""));
         return targetJarFile.getAbsolutePath();
     }
 
@@ -197,7 +207,8 @@ public class FileUtils {
                 File targetFile1 = new File(file1.getAbsolutePath() + File.separator + file.getName());
                 copyFile(file, targetFile1);
             }
-            if (file.isDirectory()) {// 复制源文件夹
+            // 复制源文件夹
+            if (file.isDirectory()) {
                 String dir1 = file.getAbsolutePath();
                 String dir2 = file1.getAbsolutePath();
                 copyFolder(dir1, dir2);
@@ -206,7 +217,6 @@ public class FileUtils {
     }
 
     public void copyFile(File resource, File target) throws Exception {
-        long start = System.currentTimeMillis();
         FileInputStream inputStream = new FileInputStream(resource);
         BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
         FileOutputStream outputStream = new FileOutputStream(target);
@@ -221,6 +231,5 @@ public class FileUtils {
         bufferedOutputStream.close();
         inputStream.close();
         outputStream.close();
-        long end = System.currentTimeMillis();
     }
 }

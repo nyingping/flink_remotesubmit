@@ -13,6 +13,12 @@ import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+/**
+ * @author nyp
+ * @version 1.0
+ * @description: 生成flink包
+ * @date 2021/10/14 13:49
+ */
 
 @Component
 public class JarService {
@@ -38,9 +44,9 @@ public class JarService {
             newPathFile.mkdirs();
         }
         fileUtils.copyFolder(rootPath + "\\src", newPath);
-        String mainPath = newPath + "//src//main//java//com//yp//flink//model//TableApiModel.java";
+        String mainPath = newPath + mainpath;
 
-        replace(mainPath, model,fileUtils);
+        replace(mainPath, model, fileUtils);
 
         String dependmentJars = fileUtils.getAllFileName(new File(dependmentPath), "jar");
         List<File> complierFiles = fileUtils.getAllFile(new File(newPath + "\\src\\main"), "java");
@@ -54,7 +60,7 @@ public class JarService {
         File targetFile = new File(targetDir);
         if (!targetFile.exists()) targetFile.mkdirs();
         String sourceDir = rootPath;
-        Iterable<String> options = Arrays.asList("-encoding", "UTF-8", "-classpath", dependmentJars, "-d", targetDir, "-sourcepath", sourceDir);
+        Iterable<String> options = Arrays.asList("-encoding", "UTF-8", "-classpath", dependmentJars, "-cp", dependmentJars, "-d", targetDir, "-sourcepath", sourceDir);
         JavaCompiler.CompilationTask task = compiler.getTask(
                 null,
                 fileManager,
@@ -63,31 +69,36 @@ public class JarService {
                 null,
                 compilationUnits);
         boolean success = task.call();
-        for (Diagnostic diagnostic : diagnostics.getDiagnostics()) ;
+        for (Diagnostic diagnostic : diagnostics.getDiagnostics()){}
         fileManager.close();
-        if (success) {
-            logger.info("编译成功");
-        }else {
+        if (logger.isInfoEnabled()) {
+            if (success) {
+                logger.info("编译成功");
+            }
+        } else {
             throw new Exception("jar包编译失败！");
         }
 
         String jarPath = fileUtils.createTempJar(targetDir, rootPath + "\\temp", "flink_" + model.getMissionName());
         boolean bool = fileUtils.deleteDir(new File(newPath));
-        if (bool) {
-            logger.info("临时目录" + targetDir + "删除");
+        if (logger.isInfoEnabled()) {
+            if (bool) {
+                logger.info("临时目录" + targetDir + "删除");
+                logger.info("打包完成后的路径 = " + jarPath);
+            }
         }
-        logger.info("打包完成后的路径 = " + jarPath);
+
         return jarPath;
     }
 
-    public void replace(String mainPath, SubmitModel model,FileUtils fileUtils) {
+    public void replace(String mainPath, SubmitModel model, FileUtils fileUtils) throws Exception {
         List<String> list = fileUtils.readJavaFile(mainPath);
         for (int i = 0; i < list.size(); i++) {
             String line = list.get(i);
             if (StringUtils.isNoneBlank()) {
-                line = line.replace("${sourceSql}", model.getSource().replaceAll("\n","").replaceAll("\r",""));
-                line = line.replace("${transformationSql}", model.getTransformation().replaceAll("\n","").replaceAll("\r",""));
-                line = line.replace("${sinkSql}", model.getSink().replaceAll("\n","").replaceAll("\r",""));
+                line = line.replace("${sourceSql}", model.getSource().replaceAll("\n", "").replaceAll("\r", ""));
+                line = line.replace("${transformationSql}", model.getTransformation().replaceAll("\n", "").replaceAll("\r", ""));
+                line = line.replace("${sinkSql}", model.getSink().replaceAll("\n", "").replaceAll("\r", ""));
             }
             list.remove(i);
             list.add(i, line);
@@ -97,6 +108,4 @@ public class JarService {
         old.delete();
         fileUtils.contentToJava(mainPath, list);
     }
-
-
 }

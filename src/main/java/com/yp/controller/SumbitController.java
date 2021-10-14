@@ -12,7 +12,12 @@ import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-
+/**
+ * @author nyp
+ * @version 1.0
+ * @description: 主contoroller
+ * @date 2021/10/14 13:49
+ */
 @RestController
 public class SumbitController {
 

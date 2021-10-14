@@ -2,7 +2,7 @@ package com.yp.service;
 
 import cn.hutool.http.HttpUtil;
 import com.google.gson.Gson;
-import com.yp.controller.SumbitController;
+import com.yp.constants.SubmitConstant;
 import com.yp.model.SubmitModel;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -10,7 +10,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +20,12 @@ import org.springframework.stereotype.Service;
 import java.io.*;
 import java.util.*;
 
+/**
+ * @author nyp
+ * @version 1.0
+ * @description: 提交任务
+ * @date 2021/10/14 13:49
+ */
 @Service
 public class SubmitService {
 
@@ -47,7 +53,7 @@ public class SubmitService {
     public String service(SubmitModel model) throws Exception {
         init();
         String flinkJarName = model.getJarName();
-        if (model.getSubmitType() == 1) {
+        if (model.getSubmitType() == SubmitConstant.SUBMIT_TYPE_COMPILE) {
             //1.生成jar包
             String jarPath = jarService.sevice(model);
             //2.上传jar包
@@ -57,10 +63,12 @@ public class SubmitService {
 
         //3.提交任务
         String url = getParam(model, flinkJarName,1);
-        String jobId = HttpUtil.post(url, "");
-        if (jobId.contains("error")) {
-            throw new Exception(jobId);
+        String result = HttpUtil.post(url, "");
+        if (result.contains(SubmitConstant.FLINKSUBMIT_RESULT_ERR_KEY)) {
+            throw new Exception(result);
         }
+        Gson gson = new Gson();
+        String jobId = gson.fromJson(result,HashMap.class).get(SubmitConstant.FLINKSUBMIT_RESULT_SUCCESS_JOBID_KEY).toString();
         return flinkMissionUiUrl.replace("{jobId}", jobId);
     }
 
@@ -87,7 +95,7 @@ public class SubmitService {
      * @throws Exception
      */
     public String upload (String jarPath) throws Exception{
-        HttpClient restClient = new DefaultHttpClient();
+        HttpClient restClient = HttpClientBuilder.create().build();
         HttpPost uploadFile = new HttpPost(flinkJarUploadUrl);
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         File file = new File(jarPath);

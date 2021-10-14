@@ -6,7 +6,12 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
 
-
+/**
+ * @author nyp
+ * @version 1.0
+ * @description: 全局异常处理
+ * @date 2021/10/14 13:49
+ */
 @ControllerAdvice
 public class MyExceptionHandler {
 

@@ -4,6 +4,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
+/**
+ * @author nyp
+ * @version 1.0
+ * @description: 提交任务页面默认值
+ * @date 2021/10/14 13:49
+ */
 @Component
 @PropertySource("classpath:application.properties")
 @ConfigurationProperties(prefix = "default")
