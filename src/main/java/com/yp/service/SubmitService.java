@@ -58,7 +58,9 @@ public class SubmitService {
             String jarPath = jarService.sevice(model);
             //2.上传jar包
             flinkJarName = upload(jarPath);
-            System.out.println(flinkJarName);
+            if (logger.isInfoEnabled()) {
+                logger.info(flinkJarName);
+            }
         }
 
         //3.提交任务
@@ -77,7 +79,7 @@ public class SubmitService {
         param.append(model.getMainClass());
         param.append("&parallelism=");
         param.append(model.getParallelism());
-        if (submitType == 2) {
+        if (submitType == SubmitConstant.SUBMIT_TYPE_NOCOMPILE) {
             param.append("&program-args=--- ");
             param.append(model.getSource().replaceAll("\r", "").replaceAll("\n", ""));
             param.append(" --- ");
