@@ -67,6 +67,7 @@ public class SubmitService {
         String url = getParam(model, flinkJarName,1);
         String result = HttpUtil.post(url, "");
         if (result.contains(SubmitConstant.FLINKSUBMIT_RESULT_ERR_KEY)) {
+            //warning 注意查看是否有同名的flink任务正在运行,且此处的flink任务名称以flink集群为准
             throw new Exception(result);
         }
         Gson gson = new Gson();
