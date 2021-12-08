@@ -21,7 +21,7 @@ mainpath=//src//main//java//com//yp//flink//model//TableApiModel.java
 
 ![](https://img2020.cnblogs.com/blog/600147/202110/600147-20211014145526544-1081096030.png)
 
-提交成功后，跳转到flink任务界面
+提交成功后，请确保浏览器没有阻止弹窗，跳转到flink任务界面
 ####3.环境
 基于
 flink 1.13.2
