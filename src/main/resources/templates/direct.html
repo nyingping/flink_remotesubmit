@@ -5,9 +5,13 @@
     <title>跳转</title>
 </head>
 <script type="text/javascript">
+    alert("a")
     window.onload = function () {
+        alert("b")
         var url = document.getElementById("url").value.trim();
+        alert("url = " + url)
         window.open(url);
+        alert("url back")
         window.history.back();
     };
 </script>

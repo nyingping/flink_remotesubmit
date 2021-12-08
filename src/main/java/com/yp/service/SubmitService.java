@@ -54,7 +54,7 @@ public class SubmitService {
     public String service(SubmitModel model) throws Exception {
         init();
         String flinkJarName = model.getJarName();
-        if (model.getSubmitType() == SubmitConstant.SUBMIT_TYPE_COMPILE) {
+        if (model.getSubmitType().equals(SubmitConstant.SUBMIT_TYPE_COMPILE) ) {
             if (StringUtils.isNoneBlank(model.getParallelism())) {
                 model.setParallelism("1");
             }
