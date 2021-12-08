@@ -32,14 +32,14 @@ public class SumbitController {
 
     @GetMapping("/")
     public ModelAndView index(Model model) {
-        return new ModelAndView("submit","defaultSql",defaultSql);
+        return new ModelAndView("submit", "defaultSql", defaultSql);
     }
 
 
     @PostMapping("/submit")
-    public ModelAndView submit(SubmitModel model) throws Exception{
-        if (model.getSubmitType() == SubmitConstant.SUBMIT_TYPE_NOCOMPILE && StringUtils.isBlank(model.getJarName())) {
-            Assert.isNull(model.getJarName(),String.format("当选择flink现有jar包的提交方式时，必须输入jar包名称【{}】","jarName"));
+    public ModelAndView submit(SubmitModel model) throws Exception {
+        if (model.getSubmitType().equals(SubmitConstant.SUBMIT_TYPE_NOCOMPILE) && StringUtils.isBlank(model.getJarName())) {
+            Assert.isNull(model.getJarName(), String.format("当选择flink现有jar包的提交方式时，必须输入jar包名称【{}】", "jarName"));
         }
         String url = submitService.service(model);
         return new ModelAndView("direct", "url", url);
