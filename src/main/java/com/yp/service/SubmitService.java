@@ -4,6 +4,7 @@ import cn.hutool.http.HttpUtil;
 import com.google.gson.Gson;
 import com.yp.constants.SubmitConstant;
 import com.yp.model.SubmitModel;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -54,6 +55,9 @@ public class SubmitService {
         init();
         String flinkJarName = model.getJarName();
         if (model.getSubmitType() == SubmitConstant.SUBMIT_TYPE_COMPILE) {
+            if (StringUtils.isNoneBlank(model.getParallelism())) {
+                model.setParallelism("1");
+            }
             //1.生成jar包
             String jarPath = jarService.sevice(model);
             //2.上传jar包
