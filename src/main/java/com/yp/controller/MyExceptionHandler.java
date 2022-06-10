@@ -12,7 +12,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @description: 全局异常处理
  * @date 2021/10/14 13:49
  */
-@ControllerAdvice
+@RestControllerAdvice
 public class MyExceptionHandler {
 
     Logger logger = LoggerFactory.getLogger(MyExceptionHandler.class);
